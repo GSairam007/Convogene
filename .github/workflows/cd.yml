@@ -7,65 +7,36 @@ on:
 
 jobs:
   deploy:
-    name: Full Setup & Deploy
+    name: Deploy via SSH
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup SSH
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install docker-compose
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VM_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose version
 
-      - name: Run remote setup & deploy
-        run: |
-          ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}          # e.g. 192.168.1.100 or your domain
+          username: ${{ secrets.VM_USER }}      # e.g. ubuntu
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
 
-            set -e  # stop on error
-
-            APP_DIR="$HOME/app"
-            REPO_URL="https://github.com/GSairam007/Convogene"
-
-            echo "📦 Updating system..."
-            sudo apt update -y
-
-            echo "🐳 Installing Docker if not present..."
-            if ! command -v docker &> /dev/null
-            then
-              sudo apt install -y docker.io
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -aG docker $USER
-            fi
-
-            echo "📦 Installing Docker Compose if not present..."
-            if ! command -v docker-compose &> /dev/null
-            then
-              sudo apt install -y docker-compose
-            fi
-
-            echo "📁 Creating app directory..."
-            mkdir -p $APP_DIR
-            cd $APP_DIR
-
-            echo "📥 Cloning repo if not exists..."
-            if [ ! -d ".git" ]; then
-              git clone $REPO_URL .
-            fi
-
-            echo "🔄 Pulling latest code..."
+            echo "Pulling latest code..."
             git pull origin main
 
-            echo "🛑 Stopping old containers..."
-            docker-compose down || true
+            echo "Bringing down existing containers..."
+            docker-compose down
 
-            echo "🚀 Starting containers..."
+            echo "Building and starting containers..."
             docker-compose up --build -d
 
-            echo "🧹 Cleaning up..."
+            echo "Cleaning up unused Docker resources..."
             docker system prune -f
 
             echo "✅ Deployment complete!"
-
-          EOF
