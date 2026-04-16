@@ -1,4 +1,4 @@
-name: CD - Deploy to VM
+name: CI/CD - Build and Deploy to VM
 
 on:
   push:
@@ -6,20 +6,48 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Deploy via SSH
+  # Step 1: CI - Validate docker-compose
+  build:
+    name: CI - Validate Docker Compose
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to VM via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}          # e.g. 192.168.1.100 or your domain
-          username: ${{ secrets.VM_USER }}      # e.g. ubuntu
-          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+      - name: Validate docker-compose file
+        run: docker-compose config
+
+  # Step 2: Manual Approval Gate
+  approval:
+    name: Manual Approval
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: production          # set up required reviewer in GitHub → Settings → Environments
+
+    steps:
+      - name: Approved
+        run: echo "Deployment approved. Proceeding..."
+
+  # Step 3: CD - Deploy to VM via SSH
+  deploy:
+    name: CD - Deploy via SSH
+    runs-on: ubuntu-latest
+    needs: approval
+
+    steps:
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VM_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VM
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'ENDSSH'
+            cd /home/ubuntu/amd-project
 
             echo "Pulling latest code..."
             git pull origin main
@@ -34,3 +62,8 @@ jobs:
             docker system prune -f
 
             echo "✅ Deployment complete!"
+          ENDSSH
+
+      - name: Cleanup SSH Key
+        if: always()
+        run: rm -f ~/.ssh/id_rsa
