@@ -1,0 +1,39 @@
+name: CD - Deploy to VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}          # e.g. 192.168.1.100 or your domain
+          username: ${{ secrets.VM_USER }}      # e.g. ubuntu
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VM_PORT }}          # default is 22
+          script: |
+            cd ${{ secrets.PROJECT_DIR }}       # e.g. /home/ubuntu/amd-project
+
+            echo "Pulling latest code..."
+            git pull origin main
+
+            echo "Bringing down existing containers..."
+            docker-compose down
+
+            echo "Building and starting containers..."
+            docker-compose up --build -d
+
+            echo "Cleaning up unused Docker resources..."
+            docker system prune -f
+
+            echo "✅ Deployment complete!"

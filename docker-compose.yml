@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./amd_backend_rag
+      dockerfile: Dockerfile
+    container_name: amd_backend
+    ports:
+      - "8088:8088"
+    networks:
+      - amd_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./amd-frontend-code
+      dockerfile: Dockerfile
+    container_name: amd_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - amd_network
+    restart: unless-stopped
+
+networks:
+  amd_network:
+    driver: bridge
