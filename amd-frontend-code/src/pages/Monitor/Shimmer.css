@@ -1,0 +1,76 @@
+/* Shimmer.css */
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif; /* Set a modern font */
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  justify-content: center; /* Center items vertically */
+  height: 100vh; /* Full viewport height */
+  background: linear-gradient(135deg, #f8f8f8, #e2eced); /* Gradient from off-white  */
+  background-size: 400% 400%; /* Allow the background to animate */
+  animation: gradient 10s ease infinite; /* Apply gradient animation */
+  overflow: hidden; /* Prevent overflow of shadows */
+}
+
+.circular-loader {
+  position: relative;
+  width: 100px; /* Loader diameter */
+  height: 100px; /* Loader diameter */
+  margin-bottom: 30px; /* Space between loader and text */
+  border-radius: 50%; /* Circular loader */
+  background: rgba(255, 255, 255, 0.7); /* Semi-transparent white background */
+  box-shadow: 0 0 20px rgba(0, 169, 255, 0.5), 0 0 40px rgba(0, 169, 255, 0.3); /* Glowing shadow */
+  display: flex; /* Center content inside loader */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+}
+
+.circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%; /* Make it circular */
+  border: 6px solid transparent; /* Transparent border */
+  border-top-color: #00A9FF; /* Color for the top border */
+  animation: spin 1.5s linear infinite; /* Spinning animation */
+}
+
+.loading-text {
+  font-size: 20px; /* Increase text size */
+  font-weight: bold; /* Text weight */
+  color: black;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg); /* Start rotation */
+  }
+  100% {
+    transform: rotate(360deg); /* End rotation */
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1; /* Fully visible */
+  }
+  50% {
+    opacity: 0.5; /* Partially invisible */
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%; /* Start from the left */
+  }
+  50% {
+    background-position: 100% 50%; /* Move to the right */
+  }
+  100% {
+    background-position: 0% 50%; /* Go back to the start */
+  }
+}

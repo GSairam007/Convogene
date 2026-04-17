@@ -1,0 +1,275 @@
+.header {
+  background-color: #f6f6f6;
+  display: flex;
+  flex-direction: row;
+  color: black;
+  font-family: "Roboto";
+  padding: 10px;
+  width: 100%;
+}
+/* Hide scrollbar for Chrome, Safari, and Opera */
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox */
+.scrollContainer {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.radio-label {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background-color: #f0f0f0;
+  transition: background-color 0.3s;
+}
+
+.radio-label:hover {
+  background-color: #cdf5fd;
+}
+
+input[type="radio"]:checked + .radio-label {
+  background-color: #cdf5fd; /* Highlight the selected state */
+}
+
+.appheader {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  left: 25%;
+  padding-bottom: 400px; /* Remove quotes */
+}
+
+.login {
+  display: flex; /* Remove quotes */
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  border-radius: 5px;
+  height: 100%;
+}
+
+.searchContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
+  height: 10%;
+  padding: 10px;
+  border-radius: 50px;
+  background-color: white;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.8); /* Correct semicolons to commas */
+  transition: transform 0.3s ease;
+}
+
+.searchInput {
+  display: flex;
+  justify-content: center;
+  font-size: 16px;
+  width: 95%;
+  height: 100%;
+  padding: 5px;
+  resize: vertical;
+  border-radius: 50px; /* Added "px" */
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+
+.iconLarge {
+  font-size: x-large;
+  padding-left: 80px;
+  padding-right: 10px !important; /* Remove quotes */
+  opacity: 0.8;
+}
+
+.promptCustom {
+  width: 30%;
+  margin-top: 20%;
+  border: 0.5px solid #ccc;
+  height: 30%;
+  background-color: #e8e8e82b;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  font-size: 12px;
+  text-align: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+.promptCustom:hover {
+  background-color: #f3f3f3;
+  cursor: pointer;
+}
+
+.title {
+  font-weight: bold;
+  height: 10%;
+  /* padding-top: 10px; */
+}
+
+.subtext {
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.robotmessageContainer {
+  border: 1px solid #f5f2f2;
+  width: 33%;
+  margin: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 10px;
+}
+
+.compareButton {
+  cursor: pointer;
+  font-size: 12px;
+  color: grey !important;
+}
+
+.initialButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 1;
+}
+
+/* .initialButton:hover {
+  opacity: 1;
+} */
+
+.drawerPaper {
+  width: 240px; /* Ensure this matches the width you use for your drawers */
+  box-sizing: border-box;
+}
+
+.nestedDrawerPaper {
+  width: 240px; /* Ensure this matches the width you use for your drawers */
+  margin-left: 240px; /* Position the nested drawer next to the primary drawer */
+  box-sizing: border-box;
+}
+
+.nestedList {
+  padding: 16px; /* Adjust padding as needed */
+  background-color: #ffffff; /* Replace with theme.palette.background.paper if using a preprocessor */
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16); /* Replace with theme.shadows[3] if using a preprocessor */
+  border-radius: 4px; /* Replace with theme.shape.borderRadius if using a preprocessor */
+  min-width: 200px;
+}
+
+.listItem {
+  padding: 8px; /* Adjust padding as needed */
+}
+.file-upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.fileuploadbox {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.file-upload-label {
+  display: block;
+  margin-bottom: 10px;
+  cursor: pointer;
+  color: #555;
+}
+
+.supported-formats {
+  display: block;
+  margin-bottom: 20px;
+  color: #777;
+}
+
+.upload-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.upload-button:hover {
+  background-color: #0056b3;
+}
+
+.imgH {
+  width: 50%;
+  height: 32px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.imgH:hover {
+  opacity: 0.9;
+}
+
+.sendIcon {
+  opacity: 0.5;
+}
+.sendIcon:hover {
+  opacity: 0.8;
+}
+.micIcon {
+  opacity: 0.5;
+}
+.micIcon:hover {
+  opacity: 0.8;
+}
+.chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.related-question-card:hover {
+  cursor: pointer; /* Change cursor to hand pointer */
+  background-color: #f0f0f0; /* Change background color on hover */
+}
+tr {
+  border-top: 1px solid #c6cbd1;
+  background: #fff;
+}
+
+th,
+td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+table tr:nth-child(2n) {
+  background: #f6f8fa;
+}
