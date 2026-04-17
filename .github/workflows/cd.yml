@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "amd_backend_rag/**"
-      - "amd-frontend-code/**"
-      - "docker-compose.yml"
 
 jobs:
   # ──────────────────────────────────────────
