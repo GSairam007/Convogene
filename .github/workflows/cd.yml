@@ -4,104 +4,101 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "amd_backend_rag/**"
+      - "amd-frontend-code/**"
+      - "docker-compose.yml"
 
 jobs:
+  # ──────────────────────────────────────────
   # Step 1: Build and Push images to DockerHub
+  # ──────────────────────────────────────────
   build-and-push:
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Needed for multi-arch builds
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
-      # Buildx is required for multi-arch + cache support
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push backend image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: ./amd_backend_rag
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: sairam76/amd-backend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/amd-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Build and push frontend image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: ./amd-frontend-code
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: sairam76/amd-frontend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/amd-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  # Step 2: Manual Approval Gate
-  approval:
-    name: Manual Approval
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    environment:
-      name: production
-
-    steps:
-      - name: Approved
-        run: echo "Deployment approved. Proceeding..."
-
-  # ─────────────────────────────────────────
+  # ──────────────────────────────────────────
   # Step 3: SSH into VM, pull images & deploy
-  # ─────────────────────────────────────────
+  # ──────────────────────────────────────────
   deploy:
     name: Deploy to VM
     runs-on: ubuntu-latest
-    needs: approval
 
     steps:
-      - name: Setup SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VM_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Deploy to VM
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << ENDSSH
-            cd /home/ubuntu/Convogene
+      - name: Copy docker-compose.yml to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "/home/ranga/Convogene-On-prem-Deployment"
 
-            echo "Pulling latest code..."
-            git pull origin main
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          envs: DOCKER_USERNAME,DOCKER_PASSWORD
+          script: |
+            set -e
+
+            cd /home/ranga/Convogene-On-prem-Deployment
 
             echo "Logging into DockerHub..."
-            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-            echo "Pulling latest images from DockerHub..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/amd-backend:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/amd-frontend:latest
+            echo "Pulling latest images..."
+            docker pull $DOCKER_USERNAME/amd-backend:latest
+            docker pull $DOCKER_USERNAME/amd-frontend:latest
 
             echo "Restarting containers..."
-            docker-compose down
-            docker-compose up -d
+            docker compose down
+            docker compose up -d
 
-            echo "Cleaning up..."
-            docker system prune -f
+            echo "Cleaning up unused images..."
+            docker image prune -f
 
             echo "✅ Deployment complete!"
-          ENDSSH
-
-      - name: Cleanup SSH Key
-        if: always()
-        run: rm -f ~/.ssh/id_rsa
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
